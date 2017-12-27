@@ -1,14 +1,12 @@
 /*
  * Create a list that holds all of your cards
  */
-
-const baseCards = ['anchor', 'bicycle', 'bolt', 'bomb', 'cube', 'diamond', 'leaf', 'paper-plane-o'];
-const cardStack = [...baseCards, ...baseCards];
-const playingField = document.getElementsByClassName('deck')[0];
-let flippedCards = [];
-
-function hasTwoFlipped() {
-    return flippedCards.length === 2;
+class Model {
+    constructor() {
+        this.baseCards = ['anchor', 'bicycle', 'bolt', 'bomb', 'cube', 'diamond', 'leaf', 'paper-plane-o'];
+        this.cardStack = [...this.baseCards, ...this.baseCards];
+        this.flippedCards = [];
+    }
 }
 
 /*
@@ -18,128 +16,177 @@ function hasTwoFlipped() {
 *   - add each card's HTML to the page
 */
 
-// Shuffle function from http://stackoverflow.com/a/2450976
-function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
-
-    while (currentIndex !== 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
+class ViewModel {
+    hasTwoFlipped() {
+        return model.flippedCards.length === 2;
     }
 
-    return array;
-}
-
-function beginNewGame() {
-    clearCards();
-    shuffle(cardStack);
-    layCards();
-}
-
-function clearCards() {
-    removeAllChildNodes(playingField);
-
-    function removeAllChildNodes(element) {
-    while (element.hasChildNodes()) {
-        element.removeChild(element.lastChild);
+    beginNewGame() {
+        view.clearCards();
+        this.shuffle(model.cardStack);
+        this.layCards();
     }
+
+    // Shuffle function from http://stackoverflow.com/a/2450976
+    shuffle(array) {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+    }
+
+    layCards() {
+        for (let cardType of model.cardStack) {
+            view.addNewCard(cardType);
+        }
+    }
+
+    manageFlippingCards(card, cardFace) {
+        this.flipCard(card, cardFace);
+        this.checkFlippedCards();
+    }
+
+    checkFlippedCards() {
+        let self = this;
+        if (self.hasTwoFlipped()) {
+            checkBothCards();
+        }
+
+        function checkBothCards() {
+            let lastCard = model.flippedCards[0];
+            let currentCard = model.flippedCards[1];
+            if (lastCard.face === currentCard.face) {
+                self.markCardsMatching();
+            } else {
+                self.unflipCards();
+            }
+        }
+    }
+
+    isFlipped(card) {
+        return view.isCardFlipped(card);
+    }
+
+    flipCard(card, cardFace) {
+        const self = this;
+        view.makeCardFaceUp(card);
+        storeFlippedCard();
+
+        function storeFlippedCard() {
+            let flippedCard = {
+                face: cardFace,
+                element: card
+            };
+
+            model.flippedCards.push(flippedCard);
+        }
+    }
+
+    unflipCards() {
+        const self = this;
+        const waitTime = 500;
+        setTimeout(resetFlippedCards, waitTime);
+
+        function resetFlippedCards() {
+            self.changeFlippedCards(self.resetCard);
+         }
+}
+
+    markCardsMatching() {
+        this.changeFlippedCards(setFlippedToMatch);
+
+        function setFlippedToMatch(card) {
+            view.lockMatchingCard(card.element);
+        }
+    }
+
+    changeFlippedCards(changeEffect) {
+        model.flippedCards.forEach(changeEffect);
+        model.flippedCards = [];
+    }
+
+    resetCard(card) {
+        view.makeCardFaceDown(card.element);
     }
 }
 
-function layCards() {
-    for (let card of cardStack) {
-        const newCard = createCard(card);
-        const cardFace = createCardFace(card);
+class View {
+    constructor() {
+        this.playingField = document.getElementsByClassName('deck')[0];
+    }
+
+    clearCards() {
+        removeAllChildNodes(this.playingField);
+
+        function removeAllChildNodes(element) {
+            while (element.hasChildNodes()) {
+                element.removeChild(element.lastChild);
+            }
+        }
+    }
+
+    addNewCard(cardType) {
+        const newCard = createCard(cardType);
+        const cardFace = createCardFace(cardType);
 
         newCard.appendChild(cardFace);
-        playingField.appendChild(newCard);
-    }
+        this.playingField.appendChild(newCard);
 
-    function createCardFace(card) {
-        const cardFace = document.createElement('span');
-        const cardDesign = 'fa-' + card;
-        cardFace.classList.add('fa', cardDesign);
+        function createCardFace(card) {
+            const cardFace = document.createElement('span');
+            const cardDesign = 'fa-' + cardType;
+            cardFace.classList.add('fa', cardDesign);
 
-        return cardFace;
-    }
+            return cardFace;
+        }
 
-    function createCard(cardFace) {
-        const card = document.createElement('li');
-        card.classList.add('card');
-        card.addEventListener('click', function() {
-            if (isUnflipped(card)) {
-                manageFlippingCards(card, cardFace);
+        function createCard(cardType) {
+            const card = document.createElement('li');
+            card.classList.add('card');
+            card.addEventListener('click', flipOnClick);
+
+            return card;
+
+            function flipOnClick() {
+                if (!viewModel.isFlipped(card)) {
+                    viewModel.manageFlippingCards(card, cardType);
+                }
             }
-        });
-
-        return card;
-   }
-}
-
-function manageFlippingCards(card, cardFace) {
-    flipCard(card, cardFace);
-    checkFlippedCards();
-}
-
-function checkFlippedCards() {
-    if (hasTwoFlipped()) {
-        checkBothCards();
+       }
     }
-}
 
-function checkBothCards() {
-    let lastCard = flippedCards[0];
-    let currentCard = flippedCards[1];
-    if (lastCard.face === currentCard.face) {
-        markCardsMatching();
-    } else {
-        unflipCards();
+    makeCardFaceDown(element) {
+        const cardClass = 'card';
+        element.className = cardClass;
     }
-}
 
-function isUnflipped(card) {
-    const cardClass = 'card';
-    return card.className === cardClass;
-}
-
-function flipCard(card, cardFace) {
-    card.classList.add('open', 'show');
-    let flippedCard = {
-        face: cardFace,
-        element: card
-    };
-
-    flippedCards.push(flippedCard);
-}
-
-function unflipCards() {
-    const waitTime = 500;
-    setTimeout(resetFlippedCards, waitTime);
-
-    function resetFlippedCards() {
-        flippedCards.forEach(resetCard);
-        flippedCards = [];
-     }
-}
-
-function markCardsMatching() {
-    flippedCards.forEach(setFlippedToMatch);
-    flippedCards = [];
-
-    function setFlippedToMatch(card) {
+    lockMatchingCard(element) {
         const matchClass = 'match';
-        resetCard(card);
-        card.element.classList.add(matchClass);
+
+        this.makeCardFaceDown(element);
+        element.classList.add(matchClass);
+    }
+
+    makeCardFaceUp(card) {
+        card.classList.add('open', 'show');
+    }
+
+    isCardFlipped(card) {
+        const cardClass = 'card';
+        return card.className !== cardClass;
     }
 }
 
-function resetCard(card) {
-    let cardClass = 'card';
-    card.element.className = cardClass;
-}
+const model = new Model();
+const viewModel = new ViewModel();
+const view = new View();
 
 
 /*
@@ -153,4 +200,4 @@ function resetCard(card) {
 *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
 */
 
-beginNewGame();
+viewModel.beginNewGame();
