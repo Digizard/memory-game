@@ -6,6 +6,7 @@ class Model {
         this.baseCards = ['anchor', 'bicycle', 'bolt', 'bomb', 'cube', 'diamond', 'leaf', 'paper-plane-o'];
         this.cardStack = [...this.baseCards, ...this.baseCards];
         this.flippedCards = [];
+        this.numMoves = 0;
     }
 }
 
@@ -22,9 +23,23 @@ class ViewModel {
     }
 
     beginNewGame() {
+        this.resetNumMoves();
         view.clearCards();
         this.shuffle(model.cardStack);
         this.layCards();
+    }
+
+    resetNumMoves() {
+        model.numMoves = 0;
+        this.updateMoves();
+    }
+
+    updateMoves() {
+        view.updateMoves(model.numMoves);
+    }
+
+    increaseNumMoves() {
+        model.numMoves++;
     }
 
     // Shuffle function from http://stackoverflow.com/a/2450976
@@ -49,8 +64,17 @@ class ViewModel {
     }
 
     manageFlippingCards(card, cardFace) {
-        this.flipCard(card, cardFace);
-        this.checkFlippedCards();
+        const self = this;
+        self.flipCard(card, cardFace);
+        manageMoves();
+        self.checkFlippedCards();
+
+        function manageMoves() {
+            if (self.hasTwoFlipped()) {
+                self.increaseNumMoves();
+                self.updateMoves();
+            }
+        }
     }
 
     checkFlippedCards() {
@@ -120,6 +144,11 @@ class ViewModel {
 class View {
     constructor() {
         this.playingField = document.getElementsByClassName('deck')[0];
+        this.movesAmount = document.getElementsByClassName('moves')[0];
+    }
+
+    updateMoves(numMoves) {
+        this.movesAmount.innerHTML = numMoves;
     }
 
     clearCards() {
