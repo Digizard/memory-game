@@ -153,14 +153,38 @@ class ViewModel {
 class View {
     constructor() {
         const self = this;
-        this.playingField = document.getElementsByClassName('deck')[0];
-        this.movesAmount = document.getElementsByClassName('moves')[0];
-        this.restartButton = document.getElementsByClassName('restart')[0];
+        self.playingField = document.getElementsByClassName('deck')[0];
+        self.movesAmount = document.getElementsByClassName('moves')[0];
+        self.restartButton = document.getElementsByClassName('restart')[0];
 
-        initRestart();
+        initListeners();
 
-        function initRestart() {
-            self.restartButton.addEventListener('click', self.openRestartModel);
+        function initListeners() {
+            initPlayingField();
+            initRestart();
+
+            function initPlayingField() {
+                self.playingField.addEventListener('click', flipCardsOnClick);
+            }
+
+            function initRestart() {
+                self.restartButton.addEventListener('click', self.openRestartModel);
+            }
+
+            function flipCardsOnClick(event) {
+                let clickedElement = event.target;
+                let cardElementName = 'LI';
+
+                if (clickedElement.nodeName === cardElementName) {
+                    self.flipOnClick(clickedElement);
+                }
+            }
+        }
+    }
+
+    flipOnClick(card) {
+        if (!viewModel.isFlipped(card)) {
+            viewModel.manageFlippingCards(card, card.type);
         }
     }
 
@@ -196,15 +220,9 @@ class View {
         function createCard(cardType) {
             const card = document.createElement('li');
             card.classList.add('card');
-            card.addEventListener('click', flipOnClick);
+            card.type = cardType;
 
             return card;
-
-            function flipOnClick() {
-                if (!viewModel.isFlipped(card)) {
-                    viewModel.manageFlippingCards(card, cardType);
-                }
-            }
        }
     }
 
