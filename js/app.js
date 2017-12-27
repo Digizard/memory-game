@@ -91,7 +91,7 @@ class ViewModel {
         function checkBothCards() {
             let lastCard = model.flippedCards[0];
             let currentCard = model.flippedCards[1];
-            if (lastCard.face === currentCard.face) {
+            if (lastCard.type === currentCard.type) {
                 self.markCardsMatching();
             } else {
                 self.unflipCards();
@@ -109,12 +109,7 @@ class ViewModel {
         storeFlippedCard();
 
         function storeFlippedCard() {
-            let flippedCard = {
-                face: cardFace,
-                element: card
-            };
-
-            model.flippedCards.push(flippedCard);
+            model.flippedCards.push(card);
         }
     }
 
@@ -132,7 +127,7 @@ class ViewModel {
         this.changeFlippedCards(setFlippedToMatch);
 
         function setFlippedToMatch(card) {
-            view.lockMatchingCard(card.element);
+            view.lockMatchingCard(card);
         }
     }
 
@@ -146,7 +141,7 @@ class ViewModel {
     }
 
     resetCard(card) {
-        view.makeCardFaceDown(card.element);
+        view.makeCardFaceDown(card);
     }
 }
 
