@@ -24,7 +24,7 @@ class ViewModel {
 
     beginNewGame() {
         this.resetNumMoves();
-        view.clearCards();
+        this.clearCards();
         this.shuffle(model.cardStack);
         this.layCards();
     }
@@ -32,6 +32,11 @@ class ViewModel {
     resetNumMoves() {
         model.numMoves = 0;
         this.updateMoves();
+    }
+
+    clearCards() {
+        this.clearFlippedCards();
+        view.clearCards();
     }
 
     updateMoves() {
@@ -133,6 +138,10 @@ class ViewModel {
 
     changeFlippedCards(changeEffect) {
         model.flippedCards.forEach(changeEffect);
+        this.clearFlippedCards();
+    }
+
+    clearFlippedCards() {
         model.flippedCards = [];
     }
 
@@ -143,8 +152,16 @@ class ViewModel {
 
 class View {
     constructor() {
+        const self = this;
         this.playingField = document.getElementsByClassName('deck')[0];
         this.movesAmount = document.getElementsByClassName('moves')[0];
+        this.restartButton = document.getElementsByClassName('restart')[0];
+
+        initRestart();
+
+        function initRestart() {
+            self.restartButton.addEventListener('click', self.openRestartModel);
+        }
     }
 
     updateMoves(numMoves) {
@@ -210,6 +227,20 @@ class View {
     isCardFlipped(card) {
         const cardClass = 'card';
         return card.className !== cardClass;
+    }
+
+    openRestartModel() {
+        swal({
+            title: 'Restart the game?',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.value) {
+                viewModel.beginNewGame();
+            }
+        });
     }
 }
 
