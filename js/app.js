@@ -28,11 +28,11 @@ class StarManager {
 
         function checkStarCount(num) {
             if (num < self.count) {
-                adjustStars();
+                hideStar();
                 self.count = num;
             }
 
-            function adjustStars() {
+            function hideStar() {
                 const starPosition = num;
                 self.stars[starPosition].classList.add('hidden');
             }
@@ -225,8 +225,12 @@ class View {
     }
 
     flipOnClick(card) {
-        if (!viewModel.isFlipped(card)) {
+        if (canFlipCard()) {
             viewModel.manageFlippingCards(card, card.type);
+        }
+
+        function canFlipCard() {
+            return !viewModel.isFlipped(card) && !viewModel.hasTwoFlipped();
         }
     }
 
