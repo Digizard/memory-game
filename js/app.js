@@ -1,3 +1,47 @@
+class StarManager {
+    constructor() {
+        this.stars = Array.from(document.getElementsByClassName('fa-star'));
+        this.count = this.stars.length;
+        this.moveCountTiers = [20, 15, 10];
+
+        this.resetStars();
+    }
+
+    resetStars() {
+        this.stars.forEach(function(star) {
+            star.classList.remove('hidden');
+        });
+
+        this.count = this.stars.length;
+    }
+
+    checkMoves(numMoves) {
+        const self = this;
+        const maxStars = self.stars.length;
+        for (let starCount = 0; starCount < maxStars; starCount++) {
+            const moveAmount = self.moveCountTiers[starCount];
+            if (numMoves > moveAmount) {
+                checkStarCount(starCount);
+                break;
+            }
+        }
+
+        function checkStarCount(num) {
+            if (num < self.count) {
+                adjustStars();
+                self.count = num;
+            }
+
+            function adjustStars() {
+                const starPosition = num;
+                self.stars[starPosition].classList.add('hidden');
+            }
+        }
+    }
+
+
+}
+
 /*
  * Create a list that holds all of your cards
  */
@@ -7,6 +51,7 @@ class Model {
         this.cardStack = [...this.baseCards, ...this.baseCards];
         this.flippedCards = [];
         this.numMoves = 0;
+        this.starManager = new StarManager;
     }
 }
 
@@ -24,6 +69,7 @@ class ViewModel {
 
     beginNewGame() {
         this.resetNumMoves();
+        model.starManager.resetStars();
         this.clearCards();
         this.shuffle(model.cardStack);
         this.layCards();
@@ -45,6 +91,7 @@ class ViewModel {
 
     increaseNumMoves() {
         model.numMoves++;
+        model.starManager.checkMoves(model.numMoves);
     }
 
     // Shuffle function from http://stackoverflow.com/a/2450976
