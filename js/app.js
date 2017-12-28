@@ -1,3 +1,67 @@
+class Timer {
+    constructor() {
+        this.timer = null;
+        this.startTime = null;
+        this.formattedMinutes = '';
+        this.formattedSeconds = '';
+        this.prevSecondsPassed = -1;
+
+        this.minutesElement = document.getElementById('minutes');
+        this.secondsElement = document.getElementById('seconds');
+    }
+
+    startTimer() {
+        const self = this;
+        this.startTime = new Date();
+        this.prevSecondsPassed = -1;
+        const waitTime = 200;
+
+        self.timer = setInterval(calcTimeDifference, waitTime);
+
+        function calcTimeDifference() {
+            const currentTime = new Date();
+            const totalTime = Math.abs(currentTime - self.startTime);
+            const secondsPassed = Math.floor(totalTime / 1000);
+
+            if (secondsPassed !== self.prevSecondsPassed) {
+                adjustClock(secondsPassed);
+            }
+        }
+
+        function adjustClock(secondsPassed) {
+            self.prevSecondsPassed = secondsPassed;
+            formatDigits();
+            changeClockTime();
+
+            function formatDigits () {
+                const minutesPassed = Math.floor(secondsPassed / 60);
+                const remainingSeconds = secondsPassed % 60;
+
+                self.formattedMinutes = padDigits(minutesPassed);
+                self.formattedSeconds = padDigits(remainingSeconds);
+
+                function padDigits(num) {
+                    let formattedDigits = num.toString();
+                    if (formattedDigits.length < 2) {
+                        formattedDigits = '0' + formattedDigits;
+                    }
+
+                    return formattedDigits;
+                }
+            }
+
+            function changeClockTime() {
+                self.minutesElement.innerText = self.formattedMinutes;
+                self.secondsElement.innerText = self.formattedSeconds;
+            }
+        }
+    }
+
+    stopTimer() {
+        clearInterval(self.timer);
+    }
+}
+
 class StarManager {
     constructor() {
         this.stars = Array.from(document.getElementsByClassName('fa-star'));
@@ -51,7 +115,8 @@ class Model {
         this.cardStack = [...this.baseCards, ...this.baseCards];
         this.flippedCards = [];
         this.numMoves = 0;
-        this.starManager = new StarManager;
+        this.starManager = new StarManager();
+        this.timer = new Timer();
     }
 }
 
@@ -73,6 +138,7 @@ class ViewModel {
         this.clearCards();
         this.shuffle(model.cardStack);
         this.layCards();
+        this.startTimer();
     }
 
     resetNumMoves() {
@@ -113,6 +179,11 @@ class ViewModel {
         for (let cardType of model.cardStack) {
             view.addNewCard(cardType);
         }
+    }
+
+    startTimer() {
+        model.timer.stopTimer();
+        model.timer.startTimer();
     }
 
     manageFlippingCards(card, cardFace) {
