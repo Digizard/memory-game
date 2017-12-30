@@ -16,7 +16,15 @@ class Timer {
         this.prevSecondsPassed = -1;
         const waitTime = 200;
 
+        stopTimerIfRunning();
+
         self.timer = setInterval(calcTimeDifference, waitTime);
+
+        function stopTimerIfRunning() {
+            if (self.timer !== null) {
+                self.stopTimer();
+            }
+        }
 
         function calcTimeDifference() {
             const currentTime = new Date();
@@ -58,7 +66,8 @@ class Timer {
     }
 
     stopTimer() {
-        clearInterval(self.timer);
+        clearInterval(this.timer);
+        this.timer = null;
     }
 }
 
@@ -117,6 +126,8 @@ class Model {
         this.numMoves = 0;
         this.starManager = new StarManager();
         this.timer = new Timer();
+        this.numMatches = 0;
+        this.maxMatches = this.baseCards.length;
     }
 }
 
@@ -134,6 +145,7 @@ class ViewModel {
 
     beginNewGame() {
         this.resetNumMoves();
+        this.resetNumMatches();
         model.starManager.resetStars();
         this.clearCards();
         this.shuffle(model.cardStack);
@@ -144,6 +156,10 @@ class ViewModel {
     resetNumMoves() {
         model.numMoves = 0;
         this.updateMoves();
+    }
+
+    resetNumMatches() {
+        model.numMatches = 0;
     }
 
     clearCards() {
@@ -182,8 +198,11 @@ class ViewModel {
     }
 
     startTimer() {
-        model.timer.stopTimer();
         model.timer.startTimer();
+    }
+
+    stopTimer() {
+        model.timer.stopTimer();
     }
 
     manageFlippingCards(card, cardFace) {
@@ -243,10 +262,23 @@ class ViewModel {
 
     markCardsMatching() {
         this.changeFlippedCards(setFlippedToMatch);
+        this.calcMatching();
 
         function setFlippedToMatch(card) {
             view.lockMatchingCard(card);
         }
+    }
+
+    calcMatching() {
+        model.numMatches++;
+        if (model.numMatches === model.maxMatches) {
+            this.victory();
+        }
+    }
+
+    victory() {
+        this.stopTimer();
+        view.openVictoryModel();
     }
 
     changeFlippedCards(changeEffect) {
@@ -281,7 +313,7 @@ class View {
             }
 
             function initRestart() {
-                self.restartButton.addEventListener('click', self.openRestartModel);
+                self.restartButton.addEventListener('click', self.openRestartModel.bind(self));
             }
 
             function flipCardsOnClick(event) {
@@ -364,18 +396,43 @@ class View {
         return card.className !== cardClass;
     }
 
-    openRestartModel() {
+    newGameModal(modalSettings) {
+        modalSettings.callback = viewModel.beginNewGame.bind(viewModel);
+        this.modal(modalSettings);
+    }
+
+    modal(modalSettings) {
         swal({
-            title: 'Restart the game?',
-            type: 'warning',
+            title: modalSettings.title,
+            text: modalSettings.text,
+            type: modalSettings.type,
             showCancelButton: true,
             confirmButtonText: 'Yes',
             cancelButtonText: 'No'
         }).then((result) => {
             if (result.value) {
-                viewModel.beginNewGame();
+                modalSettings.callback();
             }
         });
+    }
+
+    openRestartModel() {
+        const modalSettings = {
+            title: 'Restart the game?',
+            type: 'warning'
+        };
+
+        this.newGameModal(modalSettings);
+    }
+
+    openVictoryModel() {
+        const modalSettings = {
+            title: 'Restart the game?',
+            text: `You won in ${model.numMoves} moves, earning you ${model.starManager.count} stars! It took you ${model.timer.formattedMinutes}:${model.timer.formattedSeconds}.`,
+            type: 'success'
+        };
+
+        this.newGameModal(modalSettings);
     }
 }
 
