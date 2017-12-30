@@ -1,20 +1,24 @@
-# Memory Game Project
+Memory Game
+===========
 
-## Table of Contents
+This project was made for the Udacity Front-End Nanodegree program. It allows the user to play the Memory card game, also known as Concentration. The user tries to find the matching pairs of cards.
 
-* [Instructions](#instructions)
-* [Contributing](#contributing)
+How to Run
+----------
 
-## Instructions
+Open `index.html` in your favorite browser.
 
-The starter project has some HTML and CSS styling to display a static version of the Memory Game project. You'll need to convert this project from a static project to an interactive one. This will require modifying the HTML and CSS files, but primarily the JavaScript file.
+How to Play
+-----------
 
-To get started, open `js/app.js` and start building out the app's functionality
+Find all matching pairs of cards. You may only view two cards at a time. The fewer moves it takes you, the higher your star rating.
 
-For specific, detailed instructions, look at the project instructions in the [Udacity Classroom](https://classroom.udacity.com/me).
+Thanks
+------
 
-## Contributing
+These resources helped me out along the way.
 
-This repository is the starter code for _all_ Udacity students. Therefore, we most likely will not accept pull requests.
+* [SweetAlert2](https://limonte.github.io/sweetalert2/)
+* ["For loop for HTMLCollection elements" on Stack Overflow](https://stackoverflow.com/questions/22754315/for-loop-for-htmlcollection-elements)
+* ["How to create a stopwatch using JavaScript?" on Stack Overflow](https://stackoverflow.com/questions/20318822/how-to-create-a-stopwatch-using-javascript)
 
-For details, check out [CONTRIBUTING.md](CONTRIBUTING.md).
