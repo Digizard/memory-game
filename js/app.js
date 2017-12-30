@@ -278,7 +278,7 @@ class ViewModel {
 
     victory() {
         this.stopTimer();
-        view.openVictoryModel();
+        view.openVictoryModal();
     }
 
     changeFlippedCards(changeEffect) {
@@ -313,7 +313,7 @@ class View {
             }
 
             function initRestart() {
-                self.restartButton.addEventListener('click', self.openRestartModel.bind(self));
+                self.restartButton.addEventListener('click', self.openRestartModal.bind(self));
             }
 
             function flipCardsOnClick(event) {
@@ -416,7 +416,7 @@ class View {
         });
     }
 
-    openRestartModel() {
+    openRestartModal() {
         const modalSettings = {
             title: 'Restart the game?',
             type: 'warning'
@@ -425,7 +425,7 @@ class View {
         this.newGameModal(modalSettings);
     }
 
-    openVictoryModel() {
+    openVictoryModal() {
         const modalSettings = {
             title: 'Restart the game?',
             text: `You won in ${model.numMoves} moves, earning you ${model.starManager.count} stars! It took you ${model.timer.formattedMinutes}:${model.timer.formattedSeconds}.`,
