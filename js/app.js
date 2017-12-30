@@ -231,7 +231,6 @@ class ViewModel {
     }
 
     flipCard(card, cardFace) {
-        const self = this;
         view.makeCardFaceUp(card);
         storeFlippedCard();
 
