@@ -2,12 +2,10 @@ class Timer {
     constructor() {
         this.timer = null;
         this.startTime = null;
-        this.formattedMinutes = '';
-        this.formattedSeconds = '';
+        this.formattedTime = '';
         this.prevSecondsPassed = -1;
 
-        this.minutesElement = document.getElementById('minutes');
-        this.secondsElement = document.getElementById('seconds');
+        this.timerElement = document.getElementsByClassName('timer')[0];
     }
 
     startTimer() {
@@ -44,9 +42,10 @@ class Timer {
             function formatDigits () {
                 const minutesPassed = Math.floor(secondsPassed / 60);
                 const remainingSeconds = secondsPassed % 60;
+                const formattedMinutes = padDigits(minutesPassed);
+                const formattedSeconds = padDigits(remainingSeconds);
 
-                self.formattedMinutes = padDigits(minutesPassed);
-                self.formattedSeconds = padDigits(remainingSeconds);
+                self.formattedTime = `${formattedMinutes}:${formattedSeconds}`;
 
                 function padDigits(num) {
                     let formattedDigits = num.toString();
@@ -59,8 +58,7 @@ class Timer {
             }
 
             function changeClockTime() {
-                self.minutesElement.innerText = self.formattedMinutes;
-                self.secondsElement.innerText = self.formattedSeconds;
+                self.timerElement.innerText = self.formattedTime;
             }
         }
     }
@@ -417,7 +415,7 @@ class View {
     openVictoryModal() {
         const modalSettings = {
             title: 'Restart the game?',
-            text: `You won in ${model.numMoves} moves, earning you ${model.starManager.count} stars! It took you ${model.timer.formattedMinutes}:${model.timer.formattedSeconds}.`,
+            text: `You won in ${model.numMoves} moves, earning you ${model.starManager.count} stars! It took you ${model.timer.formattedTime}.`,
             type: 'success'
         };
 
